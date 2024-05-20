@@ -66,6 +66,12 @@ module.exports = {
         type: Sequelize.DATE,
         defaultValue: new Date()
       },
+      discountCode: {
+        type: Sequelize.STRING
+      },
+      discount: {
+        type: Sequelize.INTEGER
+      },
       userId: {
         allowNull: false,
         type: Sequelize.INTEGER,

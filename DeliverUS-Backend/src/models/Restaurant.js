@@ -76,7 +76,9 @@ const loadModel = (sequelize, DataTypes) => {
       allowNull: false,
       type: DataTypes.DATE,
       defaultValue: new Date()
-    }
+    },
+    discountCode: DataTypes.STRING,
+    discount: DataTypes.INTEGER
   }, {
     sequelize,
     modelName: 'Restaurant'

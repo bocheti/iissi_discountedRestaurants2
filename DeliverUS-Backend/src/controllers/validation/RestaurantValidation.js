@@ -1,6 +1,19 @@
 import { check } from 'express-validator'
 import { checkFileIsImage, checkFileMaxSize } from './FileValidationHelper.js'
+import { Restaurant } from '../../models/models.js'
 const maxFileSize = 2000000 // around 2Mb
+
+const checkCodeNotRepeated = async (value, { req }) => {
+  try {
+    const restaurant = await Restaurant.findOne({ where: { discountCode: req.body.discountCode } })
+    if (restaurant) {
+      return Promise.reject(new Error('The discount code ' + req.body.discountCode + ' is already in use by another restaurant.'))
+    }
+    return Promise.resolve()
+  } catch (err) {
+    return Promise.reject(new Error(err))
+  }
+}
 
 const create = [
   check('name').exists().isString().isLength({ min: 1, max: 255 }).trim(),
@@ -24,7 +37,9 @@ const create = [
   }).withMessage('Please upload an image with format (jpeg, png).'),
   check('logo').custom((value, { req }) => {
     return checkFileMaxSize(req, 'logo', maxFileSize)
-  }).withMessage('Maximum file size of ' + maxFileSize / 1000000 + 'MB')
+  }).withMessage('Maximum file size of ' + maxFileSize / 1000000 + 'MB'),
+  check('discount').optional({ nullable: true, checkFalsy: true }).isInt({ min: 1, max: 99 }),
+  check('discountCode').optional({ nullable: true, checkFalsy: true }).isString().isLength({ min: 1, max: 10 }).custom(checkCodeNotRepeated)
 ]
 const update = [
   check('name').exists().isString().isLength({ min: 1, max: 255 }).trim(),
@@ -48,7 +63,9 @@ const update = [
   }).withMessage('Please upload an image with format (jpeg, png).'),
   check('logo').custom((value, { req }) => {
     return checkFileMaxSize(req, 'logo', maxFileSize)
-  }).withMessage('Maximum file size of ' + maxFileSize / 1000000 + 'MB')
+  }).withMessage('Maximum file size of ' + maxFileSize / 1000000 + 'MB'),
+  check('discount').optional({ nullable: true, checkFalsy: true }).isInt({ min: 1, max: 99 }),
+  check('discountCode').optional({ nullable: true, checkFalsy: true }).isString().isLength({ min: 1, max: 10 }).custom(checkCodeNotRepeated)
 ]
 
 export { create, update }
